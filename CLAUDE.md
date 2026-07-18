@@ -20,6 +20,10 @@ names, mostly southern and central Israel) to a Waze location link per branch.
   `Summary` (per-day stop count / total distance, plus the day-count comparison used to pick
   the number of days).
 
+- `docs/` — the GitHub Pages driver site (static HTML/CSS/JS, no build step). `index.html` +
+  `styles.css` + `app.js` are hand-written; `data.js` is generated (see `scripts/build_site_data.py`
+  below) and must be regenerated whenever the day routes or branch list change.
+
 Deliverables are Excel (`.xlsx`) only, not `.numbers` — see Conventions below.
 
 Row count in the deliverable is 79 (the 81 source branches, minus 3 dropped data-error rows,

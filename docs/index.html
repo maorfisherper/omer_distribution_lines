@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>מסלולי חלוקה — עומר</title>
+<meta name="description" content="מסלולי חלוקה יומיים לנהג, עם קישורי Waze לכל סניף" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">DSP-01</span>
+      <div>
+        <div class="brand-title">מסלולי חלוקה</div>
+        <div class="brand-sub">DISTRIBUTION ROUTES · DAROM</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" title="החלף מצב תצוגה" aria-label="החלף מצב תצוגה">◐</button>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-view="route">מסלול יומי</button>
+    <button class="tab-btn" data-view="all">כל הסניפים</button>
+  </div>
+</div>
+
+<main>
+
+  <section class="view active" id="view-route">
+    <div class="day-strip" id="dayStrip"></div>
+    <div id="dayHeader"></div>
+    <div class="route-line" id="routeLine"></div>
+    <div id="unscheduledBox"></div>
+  </section>
+
+  <section class="view" id="view-all">
+    <div class="search-row">
+      <input class="search-input" id="searchInput" type="text" placeholder="חיפוש סניף, עיר או רשת…" />
+    </div>
+    <div class="branch-count" id="branchCount"></div>
+    <div id="branchList"></div>
+  </section>
+
+</main>
+
+<footer>נוצר אוטומטית ממסד הנתונים · לעדכון המסלול הרץ מחדש את הסקריפטים בפרויקט</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
