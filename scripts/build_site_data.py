@@ -1,11 +1,34 @@
 import json
+import os
 import re
+import urllib.parse
 
 import openpyxl
 
 DAYS_XLSX = "branches_with_waze_links_v3_days.xlsx"
 ALL_XLSX = "branches_with_waze_links_v3.xlsx"
+DRIVING_JSON = "driving_routes.json"
 OUT_JS = "docs/data.js"
+
+driving = {}
+if os.path.exists(DRIVING_JSON):
+    with open(DRIVING_JSON, encoding="utf-8") as f:
+        driving = {int(k): v for k, v in json.load(f).items()}
+else:
+    print(f"warning: {DRIVING_JSON} not found — run scripts/fetch_driving_distances.py first; "
+          "site will fall back to straight-line distances only")
+
+
+def google_maps_url(stops):
+    pts = [f"{s['coordinates']['lat']},{s['coordinates']['lon']}" for s in stops if s["coordinates"]]
+    if len(pts) < 2:
+        return None
+    origin, destination = pts[0], pts[-1]
+    waypoints = pts[1:-1]
+    params = {"api": "1", "origin": origin, "destination": destination, "travelmode": "driving"}
+    if waypoints:
+        params["waypoints"] = "|".join(waypoints)
+    return "https://www.google.com/maps/dir/?" + urllib.parse.urlencode(params, safe="|,")
 
 coord_re = re.compile(r"^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$")
 
@@ -43,7 +66,25 @@ day_list = []
 for day_num in sorted(days):
     stops = sorted(days[day_num], key=lambda s: s["stop"])
     total = sum(s["legDistanceM"] for s in stops if s["legDistanceM"])
-    day_list.append({"day": day_num, "stops": stops, "totalDistanceM": total})
+
+    drv = driving.get(day_num)
+    if drv:
+        for i, s in enumerate(stops):
+            if i > 0:
+                leg = drv["legs"][i - 1]
+                s["legDrivingDistanceM"] = leg["distanceM"]
+                s["legDrivingDurationS"] = leg["durationS"]
+
+    day_entry = {
+        "day": day_num,
+        "stops": stops,
+        "totalDistanceM": total,
+        "drivingDistanceM": drv["totalDistanceM"] if drv else None,
+        "drivingDurationS": drv["totalDurationS"] if drv else None,
+        "routeGeometry": drv["geometry"] if drv else None,
+        "googleMapsUrl": google_maps_url(stops),
+    }
+    day_list.append(day_entry)
 
 # ---- full branch database ----
 wb2 = openpyxl.load_workbook(ALL_XLSX, data_only=True)

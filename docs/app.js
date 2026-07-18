@@ -18,6 +18,10 @@
     var next = effectiveDark ? "light" : "dark";
     root.setAttribute("data-theme", next);
     localStorage.setItem("theme", next);
+    if (activeDay !== "unscheduled") {
+      var day = DATA.days.find(function (d) { return d.day === activeDay; });
+      if (day) renderDayMap(day);
+    }
   });
 
   // ---------------- tabs ----------------
@@ -30,12 +34,25 @@
       btn.classList.add("active");
       Object.keys(views).forEach(function (k) { views[k].classList.remove("active"); });
       views[btn.dataset.view].classList.add("active");
+      if (btn.dataset.view === "route" && dayMap) {
+        setTimeout(function () { dayMap.invalidateSize(); }, 0);
+      }
     });
   });
 
   // ---------------- helpers ----------------
   function fmtKm(m) {
+    if (m == null) return "—";
     return (m / 1000).toLocaleString("he-IL", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+  }
+
+  function fmtDuration(s) {
+    if (s == null) return "—";
+    var mins = Math.round(s / 60);
+    if (mins < 60) return mins + ' דק׳';
+    var h = Math.floor(mins / 60);
+    var m = mins % 60;
+    return h + ' ש׳' + (m ? " " + m + ' דק׳' : "");
   }
 
   function el(tag, cls, html) {
@@ -67,11 +84,12 @@
   function renderDayStrip() {
     dayStrip.innerHTML = "";
     DATA.days.forEach(function (d) {
+      var km = d.drivingDistanceM != null ? d.drivingDistanceM : d.totalDistanceM;
       var chip = el("div", "day-chip" + (d.day === activeDay ? " active" : ""));
       chip.innerHTML =
         '<div class="day-chip-label">יום</div>' +
         '<div class="day-chip-num">' + d.day + "</div>" +
-        '<div class="day-chip-meta">' + d.stops.length + " עצירות · " + fmtKm(d.totalDistanceM) + ' ק"מ</div>';
+        '<div class="day-chip-meta">' + d.stops.length + " עצירות · " + fmtKm(km) + ' ק"מ</div>';
       chip.addEventListener("click", function () {
         activeDay = d.day;
         renderDayStrip();
@@ -102,16 +120,18 @@
 
   function renderStopCard(stop, index) {
     var wrap = el("div");
-    if (index > 0 && stop.legDistanceM != null) {
-      wrap.appendChild(
-        el(
-          "div",
-          "leg-connector",
-          '<span class="arrow">↓</span> ' +
-            stop.legDistanceM.toLocaleString("he-IL") +
-            " מ' מהעצירה הקודמת"
-        )
-      );
+    if (index > 0 && (stop.legDrivingDistanceM != null || stop.legDistanceM != null)) {
+      var legText;
+      if (stop.legDrivingDistanceM != null) {
+        legText =
+          stop.legDrivingDistanceM.toLocaleString("he-IL") +
+          " מ' נסיעה · " +
+          fmtDuration(stop.legDrivingDurationS) +
+          " מהעצירה הקודמת";
+      } else {
+        legText = stop.legDistanceM.toLocaleString("he-IL") + " מ' (קו ישר) מהעצירה הקודמת";
+      }
+      wrap.appendChild(el("div", "leg-connector", '<span class="arrow">↓</span> ' + legText));
     }
     var card = el("div", "stop-card");
     card.style.animationDelay = index * 0.03 + "s";
@@ -126,6 +146,54 @@
     return wrap;
   }
 
+  var mapFrameEl = document.getElementById("mapFrame");
+  var dayMap = null;
+  var mapLayer = null;
+
+  function renderDayMap(day) {
+    if (!day || !day.routeGeometry || !day.routeGeometry.length) {
+      mapFrameEl.style.display = "none";
+      return;
+    }
+    mapFrameEl.style.display = "block";
+
+    if (!dayMap) {
+      dayMap = L.map("dayMap", { attributionControl: true, scrollWheelZoom: false });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(dayMap);
+    }
+
+    if (mapLayer) {
+      dayMap.removeLayer(mapLayer);
+    }
+    mapLayer = L.layerGroup().addTo(dayMap);
+
+    var isDark = (root.getAttribute("data-theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
+    var lineColor = isDark ? "#e8622c" : "#c94e1d";
+
+    var latlngs = day.routeGeometry.map(function (p) { return [p[0], p[1]]; });
+    L.polyline(latlngs, { color: lineColor, weight: 4, opacity: 0.85 }).addTo(mapLayer);
+
+    day.stops.forEach(function (stop, i) {
+      if (!stop.coordinates) return;
+      var cls = i === 0 ? "first" : i === day.stops.length - 1 ? "last" : "";
+      var icon = L.divIcon({
+        className: "",
+        html: '<div class="stop-marker ' + cls + '">' + stop.stop + "</div>",
+        iconSize: [26, 26],
+        iconAnchor: [13, 13],
+      });
+      L.marker([stop.coordinates.lat, stop.coordinates.lon], { icon: icon })
+        .bindPopup("<b>" + stop.correctedText + "</b>")
+        .addTo(mapLayer);
+    });
+
+    dayMap.fitBounds(L.polyline(latlngs).getBounds(), { padding: [24, 24] });
+    setTimeout(function () { dayMap.invalidateSize(); dayMap.fitBounds(L.polyline(latlngs).getBounds(), { padding: [24, 24] }); }, 50);
+  }
+
   function renderRoute() {
     dayHeaderEl.innerHTML = "";
     routeLineEl.innerHTML = "";
@@ -134,6 +202,7 @@
     if (activeDay === "unscheduled") {
       dayHeaderEl.innerHTML =
         '<div class="day-header"><h1>לא משובץ</h1></div>';
+      mapFrameEl.style.display = "none";
       DATA.unscheduled.forEach(function (item) {
         var box = el("div", "stop-card");
         box.style.gridTemplateColumns = "1fr";
@@ -151,12 +220,25 @@
     var day = DATA.days.find(function (d) { return d.day === activeDay; });
     if (!day) return;
 
+    var km = day.drivingDistanceM != null ? day.drivingDistanceM : day.totalDistanceM;
+    var gmapsBtn = day.googleMapsUrl
+      ? '<a class="gmaps-btn" href="' + day.googleMapsUrl + '" target="_blank" rel="noopener">' +
+        '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C7.03 2 3 6.03 3 11c0 4.17 5.4 9.92 7.6 12.06.78.76 2.02.76 2.8 0C15.6 20.92 21 15.17 21 11c0-4.97-4.03-9-9-9zm0 12.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4z"/></svg>' +
+        "<span>כל המסלול ב-Google Maps</span></a>"
+      : "";
+
     dayHeaderEl.innerHTML =
-      '<div class="day-header"><h1>יום ' + day.day + "</h1>" +
+      '<div class="day-header">' +
+      '<div class="day-header-top"><h1>יום ' + day.day + "</h1>" +
       '<div class="stat-row">' +
       '<div class="stat"><div class="stat-num">' + day.stops.length + '</div><div class="stat-label">עצירות</div></div>' +
-      '<div class="stat"><div class="stat-num">' + fmtKm(day.totalDistanceM) + '</div><div class="stat-label">ק"מ</div></div>' +
-      "</div></div>";
+      '<div class="stat"><div class="stat-num">' + fmtKm(km) + '</div><div class="stat-label">ק"מ נסיעה</div></div>' +
+      '<div class="stat"><div class="stat-num">' + fmtDuration(day.drivingDurationS) + '</div><div class="stat-label">זמן נסיעה</div></div>' +
+      "</div></div>" +
+      gmapsBtn +
+      "</div>";
+
+    renderDayMap(day);
 
     day.stops.forEach(function (stop, i) {
       routeLineEl.appendChild(renderStopCard(stop, i));

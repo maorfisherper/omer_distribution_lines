@@ -22,7 +22,11 @@ names, mostly southern and central Israel) to a Waze location link per branch.
 
 - `docs/` — the GitHub Pages driver site (static HTML/CSS/JS, no build step). `index.html` +
   `styles.css` + `app.js` are hand-written; `data.js` is generated (see `scripts/build_site_data.py`
-  below) and must be regenerated whenever the day routes or branch list change.
+  below) and must be regenerated whenever the day routes or branch list change. Shows a per-day
+  Leaflet/OpenStreetMap map (numbered markers + real driving route line), real driving
+  distance/time per leg and per day, and a "whole day in Google Maps" link.
+- `driving_routes.json` — cached real driving distances/durations/route geometry per day from OSRM
+  (see "Driving distances" below). Committed so the site doesn't depend on a live routing call.
 
 Deliverables are Excel (`.xlsx`) only, not `.numbers` — see Conventions below.
 
@@ -86,6 +90,20 @@ Branches without coordinates are excluded from clustering and listed separately 
 Re-run this whenever the branch list or coordinates change — it's a fresh optimization, not an
 incremental update.
 
+## Driving distances
+
+`scripts/fetch_driving_distances.py` calls the free OSRM public demo server
+(`router.project-osrm.org`, driving profile, no API key) once per day route, in the stop order
+already fixed by day-route clustering (this does NOT re-optimize order using driving time/distance
+— it only measures the existing order). One request per day returns the whole day's real distance,
+duration, per-leg distance/duration, and the full route geometry (for the map polyline). Results
+are cached in `driving_routes.json` — the site never calls OSRM live (avoids depending on / abusing
+the free demo server from every driver's phone). Be polite: keep the ~1s delay between requests, and
+re-run this only when the day routes actually change, not on every site rebuild.
+
+The site's "day total" and per-leg figures show driving distance/time when available, falling back
+to straight-line distance if `driving_routes.json` is missing or a day's fetch failed.
+
 ## Regenerating the spreadsheet
 
 Python with `openpyxl` (xlsx with real hyperlinks):
@@ -102,8 +120,11 @@ Scripts (run from the project root, after activating `venv`):
 - `scripts/build_deliverable_xlsx.py` — builds `branches_with_waze_links_v3.xlsx` from the `_v3.csv`.
 - `scripts/build_day_routes.py` — builds `branches_with_waze_links_v3_days.xlsx` (day clustering,
   see "Day-route clustering" above) from the `_v3.csv`.
+- `scripts/fetch_driving_distances.py` — builds/refreshes `driving_routes.json` from
+  `branches_with_waze_links_v3_days.xlsx` (see "Driving distances" above). Needs internet access.
 - `scripts/build_site_data.py` — regenerates `docs/data.js` for the GitHub Pages driver site from
-  the `_v3.xlsx` and `_v3_days.xlsx` files. Run this after either of the above changes.
+  the `_v3.xlsx`, `_v3_days.xlsx`, and `driving_routes.json` files. Run this last, after any of the
+  above change.
 
 ## Conventions
 

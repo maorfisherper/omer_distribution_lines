@@ -296,9 +296,8 @@ main {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  border-bottom: 2px dashed var(--line);
   padding-bottom: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   flex-wrap: wrap;
   gap: 10px;
 }
@@ -310,9 +309,89 @@ main {
   letter-spacing: -0.01em;
 }
 
+.day-header-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
 .day-header .stat-row {
   display: flex;
   gap: 18px;
+}
+
+.gmaps-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  color: var(--ink-dim);
+  border: 2px solid var(--line);
+  font-weight: 700;
+  font-size: 12.5px;
+  text-decoration: none;
+  padding: 8px 13px;
+  border-radius: 999px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+  margin-top: 10px;
+}
+
+.gmaps-btn:hover {
+  border-color: var(--amber);
+  color: var(--ink);
+}
+
+.gmaps-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- map ---------- */
+
+.map-frame {
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-hard);
+}
+
+#dayMap {
+  height: 300px;
+  width: 100%;
+  background: var(--bg-raised);
+}
+
+.leaflet-container {
+  font-family: "Rubik", sans-serif;
+  background: var(--bg-raised) !important;
+}
+
+.stop-marker {
+  background: var(--rust);
+  color: #fff;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.stop-marker.first {
+  background: var(--good);
+}
+
+.stop-marker.last {
+  background: var(--waze-blue-deep);
 }
 
 .stat {
