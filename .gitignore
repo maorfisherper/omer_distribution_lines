@@ -1,0 +1,7 @@
+venv/
+.DS_Store
+~$*.xlsx
+.claude/settings.local.json
+__pycache__/
+*.pyc
+9a4905ee-ee71-4665-ae27-a15c18752c9d/

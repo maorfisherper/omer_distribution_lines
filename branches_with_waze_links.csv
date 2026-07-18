@@ -1,0 +1,82 @@
+﻿Original text,Corrected text,Waze location,Waze match (for verification),Confidence / note
+סאלח דבאח ב״ש,סאלח דבאח – באר שבע,"https://waze.com/ul?ll=31.224450,34.821690&navigate=yes","סופר דבאח (באר שבע, ירדן)","[med] Waze name is 'סופר דבאח' (same store, different naming)."
+זול ובגדול אשדוד,זול ובגדול – אשדוד,"https://waze.com/ul?ll=31.780820,34.631780&navigate=yes","זול ובגדול (אשדוד, כנרת)",[high] 
+יוחננוף גדרה ,יוחננוף – גדרה,"https://waze.com/ul?ll=31.797160,34.767740&navigate=yes",יוחננוף ביג גדרה,"[high] 2nd hit was a park, not a store."
+מחסני השוק רמות,מחסני השוק – רמות,"https://waze.com/ul?ll=31.280323,34.804813&navigate=yes",מחסני השוק רמות (באר שבע),[high] 'רמות' = Beer Sheva neighborhood.
+רמי לוי נתיבות,רמי לוי – נתיבות,"https://waze.com/ul?ll=31.416910,34.615611&navigate=yes",רמי לוי שיווק השקמה (נתיבות),[high] Store + parking at same spot.
+מחסני השוק דימונה,"מחסני השוק – דימונה, פרץ סנטר","https://waze.com/ul?ll=31.059750,35.020900&navigate=yes",מחסני השוק – פרץ סנטר (דימונה),[high] 
+מחסני השוק מיתרים,מחסני השוק – מיתרים,"https://waze.com/ul?ll=31.374910,35.007250&navigate=yes",מחסני השוק מיתרים,[high] Meitarim industrial zone.
+רמי לוי אופקים,רמי לוי – אופקים,"https://waze.com/ul?ll=31.293210,34.612890&navigate=yes",רמי לוי שיווק השקמה (אופקים),[high] 
+רמי לוי קסטינה,רמי לוי – קסטינה,,,NOT FOUND: no Rami Levy at Kastina junction in Waze.
+רמי לוי כרמי גת- בוייז ספורטק קריית גת,רמי לוי כרמי גת / סופרמרקט בקריית גת,"https://waze.com/ul?ll=31.626950,34.771360&navigate=yes",רמי לוי שיווק השקמה כרמי גת (קריית גת),[med] 2 Rami Levy in Kiryat Gat; 'כרמי גת' picks this one.
+קינג סטור ב״ש,קינג סטור – באר שבע,"https://waze.com/ul?ll=31.224680,34.820200&navigate=yes","קינג סטור (באר שבע, חופית)","[high] Store + supplier entrance, same spot."
+קשת טעמים אשדוד,קשת טעמים – אשדוד,"https://waze.com/ul?ll=31.812130,34.661190&navigate=yes","קשת טעמים (אשדוד, היהלומים)",[high] 
+מחסני השוק גדרה,מחסני השוק – גדרה,"https://waze.com/ul?ll=31.803660,34.784850&navigate=yes",מחסני השוק בשבילך (גדרה),"[high] Store + parking, same spot."
+מחסני השוק האורגים,מחסני השוק – האורגים,"https://waze.com/ul?ll=31.254180,34.817730&navigate=yes",מחסני השוק האורגים (באר שבע),[high] 
+יוחננוף נתיבות רחוב בעלי המלאכה,"יוחננוף – נתיבות, בעלי המלאכה","https://waze.com/ul?ll=31.418300,34.597040&navigate=yes","יוחננוף (נתיבות, בעלי המלאכה)",[high] Street matches; distinct from row 35.
+מחסני השוק דימונה ממשית,מחסני השוק – דימונה ממשית,,,AMBIGUOUS: Waze has only the פרץ סנטר store in Dimona (row 6); no distinct 'ממשית' branch.
+קשת טעמים ב״ש,קשת טעמים – באר שבע,"https://waze.com/ul?ll=31.222930,34.802850&navigate=yes","קשת טעמים (באר שבע, ויקטור ונטורה)",[high] 
+מחסני השוק אופקים,"מחסני השוק – אופקים, מבנה",,,AMBIGUOUS: 2 Mahsanei HaShuk in Ofakim (שד' יהדות דרום אפריקה and מנחם בגין/שקד).
+מחסני השוק קרית מלאכי,מחסני השוק – קריית מלאכי,"https://waze.com/ul?ll=31.731658,34.753038&navigate=yes","מחסני השוק (קריית מלאכי, היוצר)",[high] 
+רמי לוי קריית גת,רמי לוי – קריית גת,,,AMBIGUOUS: 2 Rami Levy in Kiryat Gat (central דרך הדרום vs כרמי גת); name has no distinguisher.
+טיב טעם ב״ש,טיב טעם – באר שבע,"https://waze.com/ul?ll=31.247910,34.812220&navigate=yes","טיב טעם (באר שבע, יצחק נפחא)",[high] 
+רמי לוי אשדוד,רמי לוי – אשדוד,,,AMBIGUOUS: 2 Rami Levy in Ashdod (בשכונה/שבט לוי vs שיווק השקמה/היהלומים).
+שפע ברכה גדרה,שפע ברכה – גדרה,,,NOT FOUND: no 'שפע ברכה' in Gedera (chain is Beit Shemesh/Modiin Ilit). There is a 'שפע מרקט' in Gedera - different name.
+מחסני השוק שכונה ט,מחסני השוק – שכונה ט׳,,,AMBIGUOUS: 'שכונה ט' not identifiable among several Beer Sheva Mahsanei HaShuk.
+קרפור נתיבות,קרפור – נתיבות,"https://waze.com/ul?ll=31.417980,34.592430&navigate=yes",קרפור היפר נתיבות,"[high] Store + parking, same spot."
+קרפור ערד,קרפור – ערד,"https://waze.com/ul?ll=31.248230,35.201160&navigate=yes","קרפור (ערד, התעשייה)",[high] 
+ח.נ משקאות הסיטונאי,ח.נ משקאות הסיטונאי,"https://waze.com/ul?ll=31.255990,34.816697&navigate=yes",ח.נ. משקאות (באר שבע),[med] Two adjacent pins (יהושע הצורף / יהודה הנחתום) = same wholesaler.
+מחסני השוק קריית גת,מחסני השוק – קריית גת,"https://waze.com/ul?ll=31.601807,34.772956&navigate=yes","מחסני השוק (קריית גת, דרך הדרום)","[high] Store + parking, same spot."
+מחסני השוק יד בנימין,מחסני השוק – יד בנימין,"https://waze.com/ul?ll=31.792720,34.824080&navigate=yes",מחסני השוק יד בנימין,[high] 
+פרש מרקט מחסני להב רחוב גיא אוני אשדוד,מחסני להב / פרשמרקט – גיא אוני,,,"AMBIGUOUS: Waze's only מחסני להב in Ashdod is on שוהם (row 40), ~2km from גיא אוני. No store at גיא אוני."
+רמי לוי ביג ב״ש,רמי לוי – BIG באר שבע,,,AMBIGUOUS: 4+ Rami Levy in Beer Sheva; none identifiable as 'BIG'.
+טיב טעם אשדוד,טיב טעם – אשדוד,"https://waze.com/ul?ll=31.810210,34.656140&navigate=yes",טיב טעם אשדוד,[high] Store + supplier entrance.
+הסל שלנו גדרה,הסל שלנו – גדרה,"https://waze.com/ul?ll=31.800510,34.783400&navigate=yes","הסל שלנו (גדרה, מנחם בגין)",[high] 
+מחסני השוק עובדה,מחסני השוק – עובדה,"https://waze.com/ul?ll=31.259650,34.780120&navigate=yes",מחסני השוק מבצע עובדה (באר שבע),[high] 'עובדה' = מבצע עובדה street.
+יוחננוף נתיבות רחוב אליהו אילוז,"יוחננוף – נתיבות, אליהו אילוז","https://waze.com/ul?ll=31.412450,34.572680&navigate=yes","יוחננוף (נתיבות, אליהו אילוז)",[high] Street matches; distinct from row 15.
+מחסני השוק ערד,מחסני השוק – ערד,"https://waze.com/ul?ll=31.248640,35.199280&navigate=yes",מחסני השוק ערד (שמיר),[high] 
+קרפור נווה זאב ב״ש,קרפור – נווה זאב,"https://waze.com/ul?ll=31.239300,34.773840&navigate=yes",Carrefour קרפור נווה זאב (באר שבע),[high] 
+שוק העיר קריית גת- עבודה פרש סוללות ופזים,שוק העיר – קריית גת / הערת עבודה נוספת,"https://waze.com/ul?ll=31.604380,34.774310&navigate=yes","שוק העיר (קריית גת, דרך הדרום)",[high] Ignored the 'work note' text in the row.
+יוחננוף אשדוד מזוז רחוב האומן יבנה,יוחננוף אשדוד/יבנה – טקסט משולב,,,DATA ERROR: row is flagged 'combined text' (Ashdod + Yavne merged). Needs splitting.
+פרש מרקט מחסני להב רחוב שהם אשדוד,מחסני להב / פרשמרקט – שוהם,"https://waze.com/ul?ll=31.766695,34.631168&navigate=yes","מחסני להב (אשדוד, שוהם)",[high] 
+יוחננוף ב״שׁ,יוחננוף – באר שבע,"https://waze.com/ul?ll=31.241510,34.809600&navigate=yes","יוחננוף (באר שבע, דרך אליהו נאוי)",[high] Store + supplier entrance.
+יוחננוף רמלה,יוחננוף – רמלה,"https://waze.com/ul?ll=31.937330,34.886180&navigate=yes","יוחננוף (רמלה, דרור)",[high] 
+סופר בונוס יבנה,סופר בונוס – יבנה,,,NOT FOUND: no 'סופר בונוס' in Yavne in Waze.
+מחסני השוק יעלים,מחסני השוק – יעלים,"https://waze.com/ul?ll=31.251100,34.779480&navigate=yes",מחסני השוק יעלים (באר שבע),[high] 'יעלים' = שדרות יעלים street.
+רמי לוי שדרות,רמי לוי – שדרות,"https://waze.com/ul?ll=31.526502,34.602092&navigate=yes","רמי לוי (שדרות, יצחק שמיר)",[high] 
+מחסני הושק יד בנימין,מחסני השוק – יד בנימין,"https://waze.com/ul?ll=31.792720,34.824080&navigate=yes",מחסני השוק יד בנימין,[high] Duplicate of row 29.
+קרפור צפון ב״ש רחוב אברהם אבינו,"קרפור – באר שבע, שכונה ד׳",,,AMBIGUOUS: no Carrefour on אברהם אבינו; 2-3 Carrefour in Beer Sheva.
+קרפור לב אשקלון ,קרפור – לב אשקלון,,,AMBIGUOUS: no clear Carrefour at 'Lev Ashkelon' mall; 4 Carrefour in Ashkelon.
+סיטי מרקט סניף ראשון גדרה,"סיטי מרקט – גדרה, סניף ציונה","https://waze.com/ul?ll=31.804598,34.790889&navigate=yes","סיטי מרקט (גדרה, ציונה צרפת)",[high] 'סניף ציונה' = ציונה צרפת street.
+סופר קופיקס אשדוד,סופר קופיקס – אשדוד,,,AMBIGUOUS: 2 Cofix in Ashdod (רוגוזין vs סיטי).
+רמי לוי מול,רמי לוי – מול,,,VAGUE: 'רמי לוי מול' - no city/landmark; many results.
+קרפור קלוזנר רמלה,קרפור – קלוזנר רמלה,"https://waze.com/ul?ll=31.919071,34.869466&navigate=yes","קרפור מרקט (רמלה, יוסף קלאוזנר)",[high] 
+רמי לוי יבנה,רמי לוי – יבנה,"https://waze.com/ul?ll=31.885700,34.733740&navigate=yes","רמי לוי שיווק השקמה (יבנה, הקישון)",[high] 
+מחסני השוק רד״ק,מחסני השוק – רד״ק,"https://waze.com/ul?ll=31.256575,34.771383&navigate=yes","מחסני השוק רד""ק (באר שבע)",[high] 
+קרפור שדרות,קרפור – שדרות,"https://waze.com/ul?ll=31.523700,34.605850&navigate=yes","קרפור - Carrefour (שדרות, קופנהגן)",[high] 
+מחסני השוק קרית מלאכי,מחסני השוק – קריית מלאכי,"https://waze.com/ul?ll=31.731658,34.753038&navigate=yes","מחסני השוק (קריית מלאכי, היוצר)",[high] Duplicate of row 19.
+קרפור סינמה סיטי,קרפור – סינמה סיטי באר שבע,"https://waze.com/ul?ll=31.234304,34.798478&navigate=yes","קרפור היפר (באר שבע, לאון אדרי)",[med] Carrefour Hyper is ~110m from Sinema City Beer Sheva.
+רמי לוי אשקלון צפון,רמי לוי – אשקלון צפון,"https://waze.com/ul?ll=31.662130,34.594590&navigate=yes","רמי לוי שיווק השקמה (אשקלון, צה""ל)","[med] 'צפון' (north) = the צה""ל store, not the המתכנן one."
+סיטי מרקט סניף שני גדרה,"סיטי מרקט – גדרה, סניף צהלה",,,AMBIGUOUS: Waze has only the ציונה branch in Gedera (row 49); no distinct 'צהלה' branch.
+טסה שוקולד רחוב הציונות אשדוד,"טסה – שדרות הציונות, אשדוד",,,"AMBIGUOUS: Tessa is on רוגוזין (row 70), not on שדרות הציונות."
+מחסני להב ב״ש,מחסני להב – באר שבע,"https://waze.com/ul?ll=31.250485,34.771336&navigate=yes","מחסני להב (באר שבע, שד' טוביהו)",[high] 
+רמי לוי לוד,רמי לוי – לוד,"https://waze.com/ul?ll=31.945270,34.892120&navigate=yes","רמי לוי שיווק השקמה (לוד, הציונות)",[high] 
+מחסני השוק יבנה,מחסני השוק – יבנה,"https://waze.com/ul?ll=31.877970,34.736400&navigate=yes",מחסני השוק יבנה (אגוז),"[high] Store + 'בשבילך' name, same spot."
+מחסני השוק סניף חדש,מחסני השוק – סניף חדש,,,"VAGUE: 'סניף חדש' (new branch), no location."
+יוחננוף מבקיעים אשקלון,יוחננוף – מבקיעים,"https://waze.com/ul?ll=31.701280,34.579940&navigate=yes",יוחננוף עיר ימים (אשקלון),[med] Only Yochananof in Ashkelon; 'עיר ימים' is next to Mavki'im.
+יוחננוף גן יבנה,יוחננוף – גן יבנה,"https://waze.com/ul?ll=31.794680,34.705580&navigate=yes",יוחננוף סניף גן יבנה,[high] 
+קרפור קניון אביה,קרפור – קניון אביה,"https://waze.com/ul?ll=31.263278,34.778719&navigate=yes","קרפור מרקט (באר שבע, שאול המלך / קניון אביה)",[med] Carrefour sits in קניון אביה.
+קרפור אשקלון בסיטי קיבוץ גלויות 5,קרפור – אשקלון סיטי,,,AMBIGUOUS: no clear Carrefour at 'Ashkelon City / קיבוץ גלויות'; 4 Carrefour in Ashkelon.
+שוק העיר רמלה רחוב דני מס,"שוק העיר – רמלה, קניון הרמבלס","https://waze.com/ul?ll=31.929320,34.867530&navigate=yes",שוק העיר רמלה (דני מס),[high] Street matches; distinct from row 77.
+טסה שוקולד רחוב רוגזין אשדוד,"טסה – רוגוזין, אשדוד","https://waze.com/ul?ll=31.803469,34.642244&navigate=yes","טסה - הבית של הממתקים (אשדוד, רוגוזין)",[med] Two close pins on רוגוזין; used the store.
+פרש מרקט מחסני להב יבנה,מחסני להב / פרשמרקט – יבנה,,,NOT FOUND: no מחסני להב / פרשמרקט in Yavne in Waze.
+מחסני השוק בית אשל,מחסני השוק – בית אשל,"https://waze.com/ul?ll=31.239870,34.793740&navigate=yes",מחסני השוק בית אשל (באר שבע),[high] 
+שוק העיר מכללה אשקלון רחוב אלי כהן,שוק העיר – מכללה אשקלון,"https://waze.com/ul?ll=31.667450,34.569030&navigate=yes","שוק העיר (אשקלון, אלי כהן)",[high] Street matches; distinct from the הפנינים store.
+יוחננוף עקרון,יוחננוף – קריית עקרון,"https://waze.com/ul?ll=31.860190,34.814490&navigate=yes",יוחננוף סניף קרית עקרון,[high] 
+מחסני השוק הקריה החרדית,מחסני השוק מהדרין – הקריה החרדית,"https://waze.com/ul?ll=31.267940,34.778430&navigate=yes",מחסני השוק קריה חרדית - מתחם 10 (באר שבע),[high] 
+קרפור אפרידר שדרות ירושלים,קרפור – אפרידר,"https://waze.com/ul?ll=31.677410,34.575410&navigate=yes",קרפור מרקט אשקלון אפרידר (שדרות ירושלים),"[high] 'שדרות ירושלים' is an ASHKELON street, not the city Sderot."
+שוק העיר רמלה רחוב יעקב דורי,"שוק העיר – נאות שמיר, רמלה","https://waze.com/ul?ll=31.929080,34.849320&navigate=yes","שוק העיר נאות שמיר (רמלה, יעקב דורי)",[high] Street matches; distinct from row 69.
+קרפור ח אשדוד מרכז כלניות,"קרפור – אשדוד רובע ח׳, מרכז כלניות","https://waze.com/ul?ll=31.783685,34.653253&navigate=yes","קרפור מרקט (אשדוד, מרכז מסחרי כלניות)",[high] 'מרכז כלניות' matches.
+יוחננוף אשדוד מזוז רחוב האומן יבנה,יוחננוף אשדוד/יבנה – טקסט משולב,,,DATA ERROR: 'combined text' row (duplicate of row 39).
+סיטי מרקט רמלה,סיטי מרקט – רמלה,,,NOT FOUND: no 'סיטי מרקט' in Ramla in Waze.
+קרפור ד רוגזין אשדוד,קרפור – אשדוד רובע ד׳,,,AMBIGUOUS: several Carrefour near רוגוזין / רובע ד' in Ashdod.
