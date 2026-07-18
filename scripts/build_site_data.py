@@ -165,7 +165,8 @@ data = {
     "allBranches": all_branches,
     "planner": {
         "points": planner_points,
-        "distances": matrix_data["distances"],  # index 0 = depot, 1..N = planner_points order
+        "distances": matrix_data["distances"],  # meters, index 0 = depot, 1..N = planner_points order
+        "durations": matrix_data["durations"],  # seconds, same indexing
     },
 }
 

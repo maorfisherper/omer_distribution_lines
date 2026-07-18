@@ -182,6 +182,218 @@ body {
   transform: rotate(-12deg);
 }
 
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+.settings-toggle {
+  border: 2px solid var(--line);
+  background: var(--bg-card);
+  color: var(--ink);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  transition: transform 0.2s ease, border-color 0.15s ease;
+  flex: none;
+}
+
+.settings-toggle:hover {
+  border-color: var(--amber);
+  transform: rotate(45deg);
+}
+
+.settings-toggle.active {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+/* ---------- settings modal ---------- */
+
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 100;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60px 16px;
+  overflow-y: auto;
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.modal-panel {
+  background: var(--bg-card);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hard);
+  max-width: 480px;
+  width: 100%;
+  padding: 22px 22px 20px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.modal-header h2 {
+  font-size: 19px;
+  margin: 0;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  color: var(--ink-faint);
+  font-size: 18px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.modal-close:hover {
+  background: var(--bg-raised);
+  color: var(--ink);
+}
+
+.modal-hint {
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.field span {
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+
+.field input {
+  background: var(--bg-raised);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  color: var(--ink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 15px;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--amber);
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.modal-error {
+  margin-top: 14px;
+  background: rgba(232, 98, 44, 0.12);
+  border: 1.5px solid var(--rust);
+  color: var(--ink);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.1s ease, opacity 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--rust);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--rust-dim);
+}
+
+.btn-primary:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink-dim);
+}
+
+.btn-secondary:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+}
+
+.modal-note {
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--good);
+  text-align: center;
+}
+
+.custom-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--amber);
+  background: rgba(232, 168, 60, 0.12);
+  border: 1px solid var(--amber);
+  padding: 3px 9px;
+  border-radius: 999px;
+  margin-inline-start: 10px;
+  vertical-align: middle;
+}
+
 .tabs {
   max-width: 920px;
   margin: 0 auto;
@@ -382,6 +594,15 @@ main {
   height: 300px;
   width: 100%;
   background: var(--bg-raised);
+}
+
+.map-caption {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--ink-faint);
+  background: var(--bg-raised);
+  text-align: center;
+  border-top: 1px solid var(--line-soft);
 }
 
 .leaflet-container {

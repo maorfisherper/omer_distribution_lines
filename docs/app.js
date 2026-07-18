@@ -2,6 +2,9 @@
   "use strict";
 
   var DATA = window.APP_DATA || { days: [], unscheduled: [], allBranches: [] };
+  var DEFAULT_DAYS = JSON.parse(JSON.stringify(DATA.days));
+  var DEFAULT_ALL_BRANCHES = JSON.parse(JSON.stringify(DATA.allBranches));
+  var isCustomActive = false;
 
   var WAZE_ICON =
     '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C7.03 2 3 6.03 3 11c0 4.17 5.4 9.92 7.6 12.06.78.76 2.02.76 2.8 0C15.6 20.92 21 15.17 21 11c0-4.97-4.03-9-9-9zm0 12.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4z"/></svg>';
@@ -153,12 +156,20 @@
   var dayMap = null;
   var mapLayer = null;
 
+  var mapCaptionEl = null;
+
   function renderDayMap(day) {
     if (!day || !day.routeGeometry || !day.routeGeometry.length) {
       mapFrameEl.style.display = "none";
       return;
     }
     mapFrameEl.style.display = "block";
+
+    if (mapCaptionEl) { mapCaptionEl.remove(); mapCaptionEl = null; }
+    if (day.geometryIsStraightLine) {
+      mapCaptionEl = el("div", "map-caption", "🐾 קווים ישרים להמחשה — מרחקי הנסיעה בפועל מדויקים");
+      mapFrameEl.appendChild(mapCaptionEl);
+    }
 
     if (!dayMap) {
       dayMap = L.map("dayMap", { attributionControl: true, scrollWheelZoom: false });
@@ -177,7 +188,9 @@
     var lineColor = isDark ? "#e8622c" : "#c94e1d";
 
     var latlngs = day.routeGeometry.map(function (p) { return [p[0], p[1]]; });
-    L.polyline(latlngs, { color: lineColor, weight: 4, opacity: 0.85 }).addTo(mapLayer);
+    var lineOpts = { color: lineColor, weight: 4, opacity: 0.85 };
+    if (day.geometryIsStraightLine) lineOpts.dashArray = "2 10";
+    L.polyline(latlngs, lineOpts).addTo(mapLayer);
 
     day.stops.forEach(function (stop, i) {
       if (!stop.coordinates) return;
@@ -231,9 +244,11 @@
         "<span>כל המסלול ב-Google Maps</span></a>"
       : "";
 
+    var customBadge = isCustomActive ? '<span class="custom-badge">🐾 מותאם אישית</span>' : "";
+
     dayHeaderEl.innerHTML =
       '<div class="day-header">' +
-      '<div class="day-header-top"><h1>יום ' + day.day + "</h1>" +
+      '<div class="day-header-top"><h1>יום ' + day.day + customBadge + "</h1>" +
       '<div class="stat-row">' +
       '<div class="stat"><div class="stat-num">' + (day.stops.length - 2) + '</div><div class="stat-label">עצירות</div></div>' +
       '<div class="stat"><div class="stat-num">' + fmtKm(km) + '</div><div class="stat-label">ק"מ נסיעה</div></div>' +
@@ -288,6 +303,167 @@
   }
 
   searchInput.addEventListener("input", renderBranchList);
+
+  // ---------------- settings / custom planner ----------------
+  var settingsBackdrop = document.getElementById("settingsBackdrop");
+  var settingsToggle = document.getElementById("settingsToggle");
+  var settingsClose = document.getElementById("settingsClose");
+  var settingsApplyBtn = document.getElementById("settingsApply");
+  var settingsResetBtn = document.getElementById("settingsReset");
+  var settingsErrorEl = document.getElementById("settingsError");
+  var settingsActiveNoteEl = document.getElementById("settingsActiveNote");
+  var cfgNumDays = document.getElementById("cfgNumDays");
+  var cfgMinPerDay = document.getElementById("cfgMinPerDay");
+  var cfgMaxPerDay = document.getElementById("cfgMaxPerDay");
+  var cfgMaxLegKm = document.getElementById("cfgMaxLegKm");
+
+  function openSettings() {
+    settingsBackdrop.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeSettings() {
+    settingsBackdrop.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  settingsToggle.addEventListener("click", openSettings);
+  settingsClose.addEventListener("click", closeSettings);
+  settingsBackdrop.addEventListener("click", function (e) {
+    if (e.target === settingsBackdrop) closeSettings();
+  });
+
+  function showSettingsError(msg) {
+    settingsErrorEl.textContent = msg;
+    settingsErrorEl.hidden = false;
+  }
+  function hideSettingsError() {
+    settingsErrorEl.hidden = true;
+  }
+
+  function updateCustomBadge() {
+    settingsToggle.classList.toggle("active", isCustomActive);
+    settingsActiveNoteEl.hidden = !isCustomActive;
+    if (isCustomActive) settingsActiveNoteEl.textContent = "🐾 מוצג כרגע מסלול מותאם אישית, לא ברירת המחדל";
+  }
+
+  function plannerDayToRenderDay(pd) {
+    var depot = DATA.depot;
+    var members = pd.members;
+    var legs = pd.legs.map(function (v) { return Math.round(v); });
+    var durLegs = pd.durationLegs && pd.durationLegs.map(function (v) { return v == null ? null : Math.round(v); });
+
+    var depotStart = {
+      isDepot: true, role: "start",
+      originalText: null, correctedText: depot.name,
+      wazeUrl: depot.wazeUrl, coordinates: depot.coordinates,
+      legDrivingDistanceM: null, legDrivingDurationS: null,
+    };
+    var realStops = members.map(function (m, i) {
+      return {
+        originalText: m.originalText, correctedText: m.correctedText,
+        wazeUrl: m.wazeUrl, coordinates: m.coordinates, stop: i + 1,
+        legDrivingDistanceM: legs[i],
+        legDrivingDurationS: durLegs ? durLegs[i] : null,
+      };
+    });
+    var depotEnd = {
+      isDepot: true, role: "end",
+      originalText: null, correctedText: depot.name + " (חזרה)",
+      wazeUrl: depot.wazeUrl, coordinates: depot.coordinates,
+      legDrivingDistanceM: legs[legs.length - 1],
+      legDrivingDurationS: durLegs ? durLegs[durLegs.length - 1] : null,
+    };
+
+    var withCoords = members.filter(function (m) { return m.coordinates; });
+    var depotLL = [depot.coordinates.lat, depot.coordinates.lon];
+    var geometry = [depotLL]
+      .concat(withCoords.map(function (m) { return [m.coordinates.lat, m.coordinates.lon]; }))
+      .concat([depotLL]);
+
+    var originDest = depot.coordinates.lat + "," + depot.coordinates.lon;
+    var wpts = withCoords.map(function (m) { return m.coordinates.lat + "," + m.coordinates.lon; });
+    var gmapsUrl = wpts.length
+      ? "https://www.google.com/maps/dir/?api=1&origin=" + originDest + "&destination=" + originDest +
+        "&travelmode=driving&waypoints=" + wpts.join("|")
+      : null;
+
+    return {
+      day: pd.day,
+      stops: [depotStart].concat(realStops).concat([depotEnd]),
+      totalDistanceM: pd.totalDistanceM,
+      drivingDistanceM: pd.totalDistanceM,
+      drivingDurationS: pd.totalDurationS,
+      routeGeometry: geometry,
+      geometryIsStraightLine: true,
+      googleMapsUrl: gmapsUrl,
+    };
+  }
+
+  settingsApplyBtn.addEventListener("click", function () {
+    hideSettingsError();
+    var opts = {
+      numDays: cfgNumDays.value.trim() ? parseInt(cfgNumDays.value.trim(), 10) : null,
+      minPerDay: cfgMinPerDay.value.trim() ? parseInt(cfgMinPerDay.value.trim(), 10) : 7,
+      maxPerDay: cfgMaxPerDay.value.trim() ? parseInt(cfgMaxPerDay.value.trim(), 10) : 9,
+      maxLegKm: cfgMaxLegKm.value.trim() ? parseFloat(cfgMaxLegKm.value.trim()) : null,
+    };
+
+    settingsApplyBtn.disabled = true;
+    settingsApplyBtn.textContent = "🐾 מחשב...";
+    setTimeout(function () {
+      var result;
+      try {
+        result = Planner.plan(opts);
+      } catch (e) {
+        result = { ok: false, error: "שגיאה בחישוב המסלול: " + e.message };
+      }
+      settingsApplyBtn.disabled = false;
+      settingsApplyBtn.textContent = "חשב מסלול";
+
+      if (!result.ok) {
+        showSettingsError(result.error);
+        return;
+      }
+
+      DATA.days = result.days.map(plannerDayToRenderDay);
+      var lookup = {};
+      DATA.days.forEach(function (d) {
+        d.stops.forEach(function (s) {
+          if (!s.isDepot) lookup[s.originalText] = { day: d.day, stop: s.stop };
+        });
+      });
+      DATA.allBranches.forEach(function (b) {
+        var m = lookup[b.originalText];
+        b.day = m ? m.day : null;
+        b.stop = m ? m.stop : null;
+      });
+
+      isCustomActive = true;
+      activeDay = DATA.days.length ? DATA.days[0].day : null;
+      updateCustomBadge();
+      renderDayStrip();
+      renderRoute();
+      renderBranchList();
+      closeSettings();
+    }, 30);
+  });
+
+  settingsResetBtn.addEventListener("click", function () {
+    DATA.days = JSON.parse(JSON.stringify(DEFAULT_DAYS));
+    DATA.allBranches = JSON.parse(JSON.stringify(DEFAULT_ALL_BRANCHES));
+    isCustomActive = false;
+    activeDay = DATA.days.length ? DATA.days[0].day : null;
+    cfgNumDays.value = "";
+    cfgMinPerDay.value = "7";
+    cfgMaxPerDay.value = "9";
+    cfgMaxLegKm.value = "";
+    hideSettingsError();
+    updateCustomBadge();
+    renderDayStrip();
+    renderRoute();
+    renderBranchList();
+    closeSettings();
+  });
 
   // ---------------- init ----------------
   renderDayStrip();

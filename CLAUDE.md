@@ -27,7 +27,9 @@ functional, not cutesy at the expense of legibility for a driver using it in a m
   `styles.css` + `app.js` are hand-written; `data.js` is generated (see `scripts/build_site_data.py`
   below) and must be regenerated whenever the day routes or branch list change. Shows a per-day
   Leaflet/OpenStreetMap map (numbered markers + real driving route line), real driving
-  distance/time per leg and per day, and a "whole day in Google Maps" link.
+  distance/time per leg and per day, and a "whole day in Google Maps" link. `planner.js` is a
+  client-side reimplementation of the day-route clustering algorithm (see "Interactive planner"
+  below) that lets the driver reconfigure constraints in the browser.
 - `driving_matrix.json` — cached real driving distance/duration matrix (depot + all 77 geolocated
   branches, from OSRM's `table` service) used to cluster days and order stops. See "Depot" and
   "Day-route clustering" below.
@@ -141,6 +143,35 @@ re-clustering so they stay consistent.)
 
 The site's "day total" and per-leg figures show driving distance/time when available, falling back
 to straight-line distance if `driving_routes.json` is missing or a day's fetch failed.
+
+## Interactive planner (in-browser)
+
+The gear icon on the site opens a form (min/max stops per day, number of days — blank means
+"auto, pick the best" — and a max driving distance allowed between two consecutive stops) and
+recomputes the day split live in the browser, no server involved:
+
+- `docs/data.js` embeds the full driving-distance/duration matrix (`APP_DATA.planner`, depot +
+  all 77 branches, from `driving_matrix.json`) so the browser has everything it needs.
+- `docs/planner.js` (`window.Planner.plan(options)`) reimplements the same capacitated k-medoids
+  + exact/heuristic ordering approach as `scripts/build_day_routes.py`, in JS, always including the
+  depot round trip. It's tuned down from the Python version for interactivity (fewer restarts,
+  a sampled range of day-counts when the feasible range is wide, exact brute-force only up to 7
+  stops/day with a nearest-neighbor+2-opt heuristic above that) and has a hard ~6s time budget so a
+  loose/expensive configuration degrades to "best found so far" instead of freezing the tab.
+- Feasibility is checked before searching, with specific error messages: min/max sanity, whether
+  the stop count divides into the requested (or any) number of days, and whether every branch has
+  *some* reachable neighbor (and the depot itself is reachable) under the max-leg constraint. If
+  the search still finds nothing, it says so and suggests loosening the constraints.
+- Custom plans don't have real OSRM route geometry (that would mean one live routing call per day
+  on every "Apply" click, against the same free demo server) — the map falls back to a dashed
+  straight-line path between stops, with a caption saying so. The distance/time *numbers* are
+  still exact (from the driving matrix), only the map polyline is a straight-line approximation.
+- "Reset to default" restores the server-computed plan baked into `data.js` at page load (kept in
+  a JS-side snapshot, not refetched).
+
+If you change the clustering algorithm in `scripts/build_day_routes.py`, mirror the change in
+`docs/planner.js` too — they're meant to produce comparable results, just at different scales of
+thoroughness.
 
 ## Regenerating the spreadsheet
 

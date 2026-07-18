@@ -32,11 +32,53 @@
         <div class="brand-sub">DOG SUPPLY ROUTES · DAROM</div>
       </div>
     </div>
-    <button class="theme-toggle" id="themeToggle" title="החלף מצב תצוגה" aria-label="החלף מצב תצוגה">◐</button>
+    <div class="topbar-actions">
+      <button class="settings-toggle" id="settingsToggle" title="הגדרות מסלול" aria-label="הגדרות מסלול">⚙</button>
+      <button class="theme-toggle" id="themeToggle" title="החלף מצב תצוגה" aria-label="החלף מצב תצוגה">◐</button>
+    </div>
   </div>
   <div class="tabs">
     <button class="tab-btn active" data-view="route">מסלול יומי</button>
     <button class="tab-btn" data-view="all">כל הסניפים</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="settingsBackdrop">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>🐾 הגדרות מסלול</h2>
+      <button class="modal-close" id="settingsClose" aria-label="סגור">✕</button>
+    </div>
+    <p class="modal-hint">
+      קבע אילוצים לחלוקת הסניפים לימים — המערכת תחשב מחדש את הפיצול והמסלול בהתאם, כולל יציאה וחזרה
+      מהבסיס בכל יום. השארת שדה ריק = ללא הגבלה.
+    </p>
+    <div class="modal-form">
+      <label class="field">
+        <span>מספר ימים (ריק = אוטומטי, המערכת תבחר את המספר היעיל ביותר)</span>
+        <input type="number" id="cfgNumDays" min="1" step="1" placeholder="אוטומטי" />
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span>מינימום עצירות ליום</span>
+          <input type="number" id="cfgMinPerDay" min="1" step="1" value="7" />
+        </label>
+        <label class="field">
+          <span>מקסימום עצירות ליום</span>
+          <input type="number" id="cfgMaxPerDay" min="1" step="1" value="9" />
+        </label>
+      </div>
+      <label class="field">
+        <span>מרחק נסיעה מקסימלי בין שתי עצירות עוקבות (ק"מ, ריק = ללא הגבלה)</span>
+        <input type="number" id="cfgMaxLegKm" min="0" step="1" placeholder="ללא הגבלה" />
+      </label>
+    </div>
+    <div class="modal-error" id="settingsError" hidden></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="settingsReset">אפס לברירת מחדל</button>
+      <button class="btn-primary" id="settingsApply">חשב מסלול</button>
+    </div>
+    <p class="modal-note" id="settingsActiveNote" hidden></p>
   </div>
 </div>
 
@@ -66,6 +108,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="data.js"></script>
+<script src="planner.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
