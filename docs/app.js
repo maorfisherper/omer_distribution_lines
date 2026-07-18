@@ -64,7 +64,7 @@
 
   function wazeButton(url, label) {
     if (!url || url === "TODO") {
-      return '<span class="coord-pill">אין מיקום ב-Waze</span>';
+      return '<span class="coord-pill">🐾 אין מיקום ב-Waze</span>';
     }
     return (
       '<a class="waze-btn" href="' + url + '" target="_blank" rel="noopener">' +
@@ -101,7 +101,7 @@
     if (DATA.unscheduled && DATA.unscheduled.length) {
       var chip = el("div", "day-chip" + (activeDay === "unscheduled" ? " active" : ""));
       chip.innerHTML =
-        '<div class="day-chip-label">—</div>' +
+        '<div class="day-chip-label">🐾</div>' +
         '<div class="day-chip-num" style="font-size:16px">לא משובץ</div>' +
         '<div class="day-chip-meta">' + DATA.unscheduled.length + " סניפים</div>";
       chip.addEventListener("click", function () {

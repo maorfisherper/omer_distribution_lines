@@ -1,7 +1,10 @@
 # Branch to Waze location project
 
 This folder maps a list of Israeli supermarket / store branches (a client list, Hebrew
-names, mostly southern and central Israel) to a Waze location link per branch.
+names, mostly southern and central Israel) to a Waze location link per branch. The branches
+distribute dog products — the driver site (`docs/`) has light dog-themed branding (paw icon,
+"PAW-01" brand mark, paw-print background texture) reflecting that; keep it tasteful and
+functional, not cutesy at the expense of legibility for a driver using it in a moving vehicle.
 
 ## Files
 
@@ -25,6 +28,9 @@ names, mostly southern and central Israel) to a Waze location link per branch.
   below) and must be regenerated whenever the day routes or branch list change. Shows a per-day
   Leaflet/OpenStreetMap map (numbered markers + real driving route line), real driving
   distance/time per leg and per day, and a "whole day in Google Maps" link.
+- `driving_matrix.json` — cached NxN real driving distance/duration matrix (all 77 geolocated
+  branches, from OSRM's `table` service) used to cluster days and order stops. See "Day-route
+  clustering" below.
 - `driving_routes.json` — cached real driving distances/durations/route geometry per day from OSRM
   (see "Driving distances" below). Committed so the site doesn't depend on a live routing call.
 
@@ -76,30 +82,41 @@ Coordinates are written to 6 decimals (~0.1 m). The `Coordinates` column holds t
 
 ## Day-route clustering
 
-Splits the geolocated branches into day routes of 7-9 stops, minimizing total driving distance
-(great-circle/haversine, not real road distance):
+Splits the geolocated branches into day routes of 7-9 stops, minimizing total **real driving
+distance** (OSRM road-network distance, not straight-line):
 
-1. Try every feasible number of days `k` (i.e. `ceil(n/9) <= k <= floor(n/7)`).
-2. For each `k`: capacitated k-means (planar-projected lat/lon) + greedy rebalancing to enforce
-   7-9 per cluster, then pairwise-swap local search between clusters.
-3. Within each day, brute-force the exact optimal visiting order (open-path, no return leg) —
-   feasible since a day never has more than 9 stops (≤ 9! permutations).
-4. Pick the `k` with the lowest total distance summed across all days.
+1. `scripts/fetch_driving_matrix.py` gets the full 77x77 driving distance/duration matrix from
+   OSRM's `table` service in a single request, cached in `driving_matrix.json`.
+2. `scripts/build_day_routes.py` clusters using that matrix (capacitated k-medoids, since driving
+   distance isn't Euclidean so there's no coordinate centroid to average — a medoid is the cluster
+   member with the lowest total distance to the rest of the cluster):
+   - Try every feasible number of days `k` (i.e. `ceil(n/9) <= k <= floor(n/7)`).
+   - For each `k`: k-medoids++ seeding + Lloyd-style reassignment, greedy rebalancing to enforce
+     7-9 per cluster, then pairwise-swap local search between clusters (all driven by the real
+     distance matrix, not planar coordinates).
+   - Within each day, brute-force the exact optimal visiting order (open-path, no return leg) —
+     feasible since a day never has more than 9 stops (≤ 9! permutations), using real driving
+     distances between stops.
+   - Pick the `k` with the lowest total real driving distance summed across all days.
 
 Branches without coordinates are excluded from clustering and listed separately as "Unscheduled".
-Re-run this whenever the branch list or coordinates change — it's a fresh optimization, not an
-incremental update.
+Re-run both scripts whenever the branch list or coordinates change — it's a fresh optimization, not
+an incremental update.
 
-## Driving distances
+## Driving distances (per-day route geometry)
 
 `scripts/fetch_driving_distances.py` calls the free OSRM public demo server
 (`router.project-osrm.org`, driving profile, no API key) once per day route, in the stop order
-already fixed by day-route clustering (this does NOT re-optimize order using driving time/distance
-— it only measures the existing order). One request per day returns the whole day's real distance,
+already fixed by day-route clustering. One request per day returns the whole day's real distance,
 duration, per-leg distance/duration, and the full route geometry (for the map polyline). Results
 are cached in `driving_routes.json` — the site never calls OSRM live (avoids depending on / abusing
 the free demo server from every driver's phone). Be polite: keep the ~1s delay between requests, and
 re-run this only when the day routes actually change, not on every site rebuild.
+
+(This is a separate call from `fetch_driving_matrix.py`: the matrix drives the clustering/ordering
+*decision*, this fetches the actual route *geometry* for the map, for the final chosen order. Their
+leg distances should closely agree since both come from OSRM, but re-run both together after any
+re-clustering so they stay consistent.)
 
 The site's "day total" and per-leg figures show driving distance/time when available, falling back
 to straight-line distance if `driving_routes.json` is missing or a day's fetch failed.
@@ -118,13 +135,17 @@ data table and regenerate the files from it.
 Scripts (run from the project root, after activating `venv`):
 
 - `scripts/build_deliverable_xlsx.py` — builds `branches_with_waze_links_v3.xlsx` from the `_v3.csv`.
+- `scripts/fetch_driving_matrix.py` — builds/refreshes `driving_matrix.json` from `_v3.csv`
+  (needs internet access). Run this first if branch coordinates changed.
 - `scripts/build_day_routes.py` — builds `branches_with_waze_links_v3_days.xlsx` (day clustering,
-  see "Day-route clustering" above) from the `_v3.csv`.
+  see "Day-route clustering" above) from `_v3.csv` + `driving_matrix.json`.
 - `scripts/fetch_driving_distances.py` — builds/refreshes `driving_routes.json` from
   `branches_with_waze_links_v3_days.xlsx` (see "Driving distances" above). Needs internet access.
 - `scripts/build_site_data.py` — regenerates `docs/data.js` for the GitHub Pages driver site from
-  the `_v3.xlsx`, `_v3_days.xlsx`, and `driving_routes.json` files. Run this last, after any of the
-  above change.
+  the `_v3.xlsx`, `_v3_days.xlsx`, and `driving_routes.json` files. Run this last.
+
+Full regeneration order after a data change: `fetch_driving_matrix.py` -> `build_day_routes.py` ->
+`fetch_driving_distances.py` -> `build_site_data.py`.
 
 ## Conventions
 

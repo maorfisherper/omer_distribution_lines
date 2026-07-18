@@ -75,14 +75,22 @@ body {
   font-family: "Rubik", "Heebo", "Arial Hebrew", sans-serif;
   direction: rtl;
   min-height: 100vh;
-  background-image:
-    repeating-linear-gradient(
-      135deg,
-      rgba(232, 98, 44, 0.035) 0px,
-      rgba(232, 98, 44, 0.035) 1px,
-      transparent 1px,
-      transparent 26px
-    );
+  background-image: var(--paw-pattern);
+  background-size: 132px 132px;
+}
+
+:root {
+  --paw-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='132'%3E%3Cg fill='%23e8622c' fill-opacity='0.05' transform='rotate(-16 66 66)'%3E%3Cellipse cx='66' cy='86' rx='17' ry='14'/%3E%3Cellipse cx='44' cy='60' rx='7' ry='8.6'/%3E%3Cellipse cx='58' cy='46' rx='6.4' ry='8'/%3E%3Cellipse cx='74' cy='46' rx='6.4' ry='8'/%3E%3Cellipse cx='88' cy='60' rx='7' ry='8.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+:root[data-theme="light"] {
+  --paw-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='132'%3E%3Cg fill='%23c94e1d' fill-opacity='0.055' transform='rotate(-16 66 66)'%3E%3Cellipse cx='66' cy='86' rx='17' ry='14'/%3E%3Cellipse cx='44' cy='60' rx='7' ry='8.6'/%3E%3Cellipse cx='58' cy='46' rx='6.4' ry='8'/%3E%3Cellipse cx='74' cy='46' rx='6.4' ry='8'/%3E%3Cellipse cx='88' cy='60' rx='7' ry='8.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --paw-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='132'%3E%3Cg fill='%23c94e1d' fill-opacity='0.055' transform='rotate(-16 66 66)'%3E%3Cellipse cx='66' cy='86' rx='17' ry='14'/%3E%3Cellipse cx='44' cy='60' rx='7' ry='8.6'/%3E%3Cellipse cx='58' cy='46' rx='6.4' ry='8'/%3E%3Cellipse cx='74' cy='46' rx='6.4' ry='8'/%3E%3Cellipse cx='88' cy='60' rx='7' ry='8.6'/%3E%3C/g%3E%3C/svg%3E");
+  }
 }
 
 .mono {
@@ -133,6 +141,17 @@ body {
   font-weight: 800;
   font-size: 20px;
   letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.paw-icon {
+  width: 17px;
+  height: 17px;
+  color: var(--rust);
+  flex: none;
+  transform: rotate(8deg);
 }
 
 .brand-sub {
@@ -539,9 +558,11 @@ main {
 
 .day-end::before,
 .day-end::after {
-  content: "— — —";
+  content: "🐾 🐾 🐾";
   margin: 0 10px;
-  opacity: 0.5;
+  opacity: 0.55;
+  letter-spacing: 0.35em;
+  font-size: 10px;
 }
 
 /* ---------- unscheduled ---------- */
