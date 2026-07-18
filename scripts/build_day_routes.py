@@ -39,7 +39,20 @@ assert matrix["originalTexts"] == [v["row"][0] for v in valid], (
     "re-run scripts/fetch_driving_matrix.py"
 )
 
-D = matrix["distances"]  # real driving distance in meters, D[i][j]
+DEPOT = matrix["depot"]
+# Dm is the full (n+1)x(n+1) matrix: index 0 = depot, indices 1..n = valid[0..n-1].
+Dm = matrix["distances"]
+# D is the plain nxn point-to-point matrix (depot excluded), used for cluster *quality* —
+# who groups with whom is still decided by mutual proximity between branches.
+D = [[Dm[i + 1][j + 1] for j in range(n)] for i in range(n)]
+
+
+def depot_to(i):
+    return Dm[0][i + 1]
+
+
+def to_depot(i):
+    return Dm[i + 1][0]
 
 
 def recompute_medoid(members):
@@ -165,11 +178,14 @@ def swap_refine(clusters, passes=10):
 
 
 def optimal_path_order(indices):
-    if len(indices) <= 1:
-        return list(indices), 0.0
+    """Best visiting order for a day's points, as a round trip depot -> ... -> depot."""
+    if len(indices) == 1:
+        i = indices[0]
+        return list(indices), depot_to(i) + to_depot(i)
     best_order, best_len = None, None
     for perm in permutations(indices):
-        length = sum(D[perm[i]][perm[i + 1]] for i in range(len(perm) - 1))
+        length = depot_to(perm[0]) + to_depot(perm[-1])
+        length += sum(D[perm[i]][perm[i + 1]] for i in range(len(perm) - 1))
         if best_len is None or length < best_len:
             best_len, best_order = length, list(perm)
     return best_order, best_len
@@ -202,11 +218,11 @@ for k in feasible_k:
             best_total, best_clusters, best_orders = total, clusters, orders
     results_by_k[k] = (best_total, best_clusters, best_orders)
     sizes = sorted(len(v) for v in best_clusters.values()) if best_clusters else None
-    print(f"k={k}: best total driving distance = {best_total:.0f} m ({best_total/1000:.1f} km), sizes={sizes}")
+    print(f"k={k}: best total driving distance (incl. depot) = {best_total:.0f} m ({best_total/1000:.1f} km), sizes={sizes}")
 
 best_k = min(results_by_k, key=lambda k: results_by_k[k][0])
 best_total, best_clusters, best_orders = results_by_k[best_k]
-print(f"\nchosen: {best_k} days, total {best_total/1000:.1f} km (real driving distance)")
+print(f"\nchosen: {best_k} days, total {best_total/1000:.1f} km (real driving distance, incl. depot round trips)")
 
 day_results = []
 
@@ -219,7 +235,7 @@ ordered_cluster_ids = sorted(best_clusters.keys(), key=lambda c: -day_centroid_l
 for day_num, c in enumerate(ordered_cluster_ids, start=1):
     order, length = best_orders[c]
     day_results.append((day_num, order, length))
-    print(f"day {day_num}: {len(order)} stops, {length:.0f} m driving")
+    print(f"day {day_num}: {len(order)} stops, {length:.0f} m driving (incl. depot)")
 
 # ================= build output workbook =================
 wb = openpyxl.Workbook()
@@ -241,13 +257,15 @@ for c in range(1, len(out_header) + 1):
 
 link_font = Font(color="000563C1", u="single")
 wrap_center = Alignment(vertical="center", wrapText=True)
+depot_coords_str = f"{DEPOT['lat']:.6f}, {DEPOT['lon']:.6f}"
 
 excel_row = 2
 for day_num, order, length in day_results:
     for stop_num, pt_idx in enumerate(order, start=1):
         row = valid[pt_idx]["row"]
-        leg = None
-        if stop_num > 1:
+        if stop_num == 1:
+            leg = round(depot_to(pt_idx))
+        else:
             prev_idx = order[stop_num - 2]
             leg = round(D[prev_idx][pt_idx])
         ws.cell(excel_row, 1, day_num)
@@ -259,10 +277,25 @@ for day_num, order, length in day_results:
             wcell.hyperlink = row[2]
             wcell.font = link_font
         ws.cell(excel_row, 6, row[3])
-        ws.cell(excel_row, 7, leg if leg is not None else None)
+        ws.cell(excel_row, 7, leg)
         for c in range(1, 8):
             ws.cell(excel_row, c).alignment = wrap_center
         excel_row += 1
+
+    # synthetic final row: return to depot
+    return_leg = round(to_depot(order[-1]))
+    ws.cell(excel_row, 1, day_num)
+    ws.cell(excel_row, 2, len(order) + 1)
+    ws.cell(excel_row, 3, "")
+    ws.cell(excel_row, 4, f"{DEPOT['name']} (חזרה)")
+    wcell = ws.cell(excel_row, 5, DEPOT["wazeUrl"])
+    wcell.hyperlink = DEPOT["wazeUrl"]
+    wcell.font = link_font
+    ws.cell(excel_row, 6, depot_coords_str)
+    ws.cell(excel_row, 7, return_leg)
+    for c in range(1, 8):
+        ws.cell(excel_row, c).alignment = wrap_center
+    excel_row += 1
 
 for row in invalid:
     ws.cell(excel_row, 1, "Unscheduled")
@@ -282,7 +315,7 @@ for col, w in widths.items():
 
 ws2 = wb.create_sheet("Summary")
 ws2.sheet_view.rightToLeft = True
-ws2.append(["Day", "Stops", "Total driving distance (m)", "Total driving distance (km)"])
+ws2.append(["Day", "Stops", "Total driving distance (m, incl. depot round trip)", "Total driving distance (km)"])
 for c in range(1, 5):
     cell = ws2.cell(1, c)
     cell.font = header_font
@@ -291,11 +324,13 @@ for day_num, order, length in day_results:
     ws2.append([day_num, len(order), round(length), round(length / 1000, 1)])
 ws2.append(["Unscheduled", len(invalid), None, None])
 ws2.append([])
+ws2.append([f"Depot: {DEPOT['name']}", f"{DEPOT['lat']:.6f}, {DEPOT['lon']:.6f}"])
+ws2.append([])
 ws2.append(["Day-count option", "Total driving distance (km)"])
 for k in sorted(results_by_k):
     t = results_by_k[k][0]
     ws2.append([k, round(t / 1000, 1) if t is not None else None])
-for col, w in {"A": 18, "B": 10, "C": 22, "D": 22}.items():
+for col, w in {"A": 30, "B": 24, "C": 22, "D": 22}.items():
     ws2.column_dimensions[col].width = w
 
 wb.save(OUT_XLSX)

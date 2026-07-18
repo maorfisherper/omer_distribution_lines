@@ -405,12 +405,9 @@ main {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
-.stop-marker.first {
+.stop-marker.depot {
   background: var(--good);
-}
-
-.stop-marker.last {
-  background: var(--waze-blue-deep);
+  font-size: 13px;
 }
 
 .stat {
@@ -454,6 +451,16 @@ main {
   border-color: var(--rust-dim);
 }
 
+.stop-card.depot {
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+}
+
+.stop-card.depot .stop-title {
+  color: var(--good);
+}
+
 .leg-connector {
   display: flex;
   align-items: center;
@@ -485,6 +492,12 @@ main {
   font-weight: 700;
   color: var(--rust);
   flex: none;
+}
+
+.stop-badge.depot {
+  border-style: dashed;
+  border-color: var(--good);
+  font-size: 22px;
 }
 
 .stop-body {

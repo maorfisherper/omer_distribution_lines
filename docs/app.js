@@ -85,11 +85,12 @@
     dayStrip.innerHTML = "";
     DATA.days.forEach(function (d) {
       var km = d.drivingDistanceM != null ? d.drivingDistanceM : d.totalDistanceM;
+      var realStops = d.stops.length - 2;
       var chip = el("div", "day-chip" + (d.day === activeDay ? " active" : ""));
       chip.innerHTML =
         '<div class="day-chip-label">יום</div>' +
         '<div class="day-chip-num">' + d.day + "</div>" +
-        '<div class="day-chip-meta">' + d.stops.length + " עצירות · " + fmtKm(km) + ' ק"מ</div>';
+        '<div class="day-chip-meta">' + realStops + " עצירות · " + fmtKm(km) + ' ק"מ</div>';
       chip.addEventListener("click", function () {
         activeDay = d.day;
         renderDayStrip();
@@ -121,25 +122,27 @@
   function renderStopCard(stop, index) {
     var wrap = el("div");
     if (index > 0 && (stop.legDrivingDistanceM != null || stop.legDistanceM != null)) {
+      var suffix = stop.isDepot ? " חזרה לבסיס" : " מהעצירה הקודמת";
       var legText;
       if (stop.legDrivingDistanceM != null) {
         legText =
           stop.legDrivingDistanceM.toLocaleString("he-IL") +
           " מ' נסיעה · " +
           fmtDuration(stop.legDrivingDurationS) +
-          " מהעצירה הקודמת";
+          suffix;
       } else {
-        legText = stop.legDistanceM.toLocaleString("he-IL") + " מ' (קו ישר) מהעצירה הקודמת";
+        legText = stop.legDistanceM.toLocaleString("he-IL") + " מ' (קו ישר)" + suffix;
       }
       wrap.appendChild(el("div", "leg-connector", '<span class="arrow">↓</span> ' + legText));
     }
-    var card = el("div", "stop-card");
+    var card = el("div", "stop-card" + (stop.isDepot ? " depot" : ""));
     card.style.animationDelay = index * 0.03 + "s";
+    var badge = stop.isDepot ? "🏠" : stop.stop;
     card.innerHTML =
-      '<div class="stop-badge">' + stop.stop + "</div>" +
+      '<div class="stop-badge' + (stop.isDepot ? " depot" : "") + '">' + badge + "</div>" +
       '<div class="stop-body">' +
       '<p class="stop-title">' + stop.correctedText + "</p>" +
-      '<p class="stop-orig">' + stop.originalText + "</p>" +
+      (stop.originalText ? '<p class="stop-orig">' + stop.originalText + "</p>" : "") +
       '<div class="stop-actions">' + wazeButton(stop.wazeUrl) + coordPill(stop.coordinates) + "</div>" +
       "</div>";
     wrap.appendChild(card);
@@ -178,10 +181,11 @@
 
     day.stops.forEach(function (stop, i) {
       if (!stop.coordinates) return;
-      var cls = i === 0 ? "first" : i === day.stops.length - 1 ? "last" : "";
+      var cls = stop.isDepot ? "depot" : "";
+      var label = stop.isDepot ? "🏠" : stop.stop;
       var icon = L.divIcon({
         className: "",
-        html: '<div class="stop-marker ' + cls + '">' + stop.stop + "</div>",
+        html: '<div class="stop-marker ' + cls + '">' + label + "</div>",
         iconSize: [26, 26],
         iconAnchor: [13, 13],
       });
@@ -231,7 +235,7 @@
       '<div class="day-header">' +
       '<div class="day-header-top"><h1>יום ' + day.day + "</h1>" +
       '<div class="stat-row">' +
-      '<div class="stat"><div class="stat-num">' + day.stops.length + '</div><div class="stat-label">עצירות</div></div>' +
+      '<div class="stat"><div class="stat-num">' + (day.stops.length - 2) + '</div><div class="stat-label">עצירות</div></div>' +
       '<div class="stat"><div class="stat-num">' + fmtKm(km) + '</div><div class="stat-label">ק"מ נסיעה</div></div>' +
       '<div class="stat"><div class="stat-num">' + fmtDuration(day.drivingDurationS) + '</div><div class="stat-label">זמן נסיעה</div></div>' +
       "</div></div>" +

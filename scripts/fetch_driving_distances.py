@@ -6,6 +6,7 @@ import urllib.request
 import openpyxl
 
 DAYS_XLSX = "branches_with_waze_links_v3_days.xlsx"
+MATRIX_JSON = "driving_matrix.json"
 OUT_JSON = "driving_routes.json"
 OSRM_BASE = "https://router.project-osrm.org/route/v1/driving/"
 
@@ -17,13 +18,16 @@ def parse_coords(s):
     return (float(m.group(1)), float(m.group(2))) if m else None  # (lat, lon)
 
 
+with open(MATRIX_JSON, encoding="utf-8") as f:
+    DEPOT = json.load(f)["depot"]
+
 wb = openpyxl.load_workbook(DAYS_XLSX, data_only=True)
 route_ws = wb["Route"]
 
 days = {}
 for row in route_ws.iter_rows(min_row=2, values_only=True):
     day, stop, orig, corrected, waze, coords, leg = row
-    if day == "Unscheduled":
+    if day == "Unscheduled" or not orig:  # skip the synthetic "return to depot" row
         continue
     latlon = parse_coords(coords)
     if latlon is None:
@@ -33,7 +37,8 @@ for row in route_ws.iter_rows(min_row=2, values_only=True):
 result = {}
 for day_num in sorted(days):
     stops = sorted(days[day_num], key=lambda s: s["stop"])
-    coord_str = ";".join(f"{s['lon']:.6f},{s['lat']:.6f}" for s in stops)
+    waypoints = [DEPOT] + stops + [DEPOT]  # round trip: depot -> stops in order -> depot
+    coord_str = ";".join(f"{w['lon']:.6f},{w['lat']:.6f}" for w in waypoints)
     url = f"{OSRM_BASE}{coord_str}?overview=full&geometries=geojson&steps=false"
 
     attempt = 0
@@ -55,19 +60,20 @@ for day_num in sorted(days):
         continue
 
     route = data["routes"][0]
-    legs = route["legs"]
+    legs = route["legs"]  # length = len(stops) + 1: [depot->s1, s1->s2, ..., sN->depot]
     geometry = route["geometry"]["coordinates"]  # [ [lon,lat], ... ]
 
     result[day_num] = {
         "totalDistanceM": round(route["distance"]),
         "totalDurationS": round(route["duration"]),
+        # legs[i] is the incoming leg for stop i+1 (1-indexed); legs[-1] is the stopN -> depot return leg.
         "legs": [
             {"distanceM": round(leg["distance"]), "durationS": round(leg["duration"])}
             for leg in legs
         ],
         "geometry": [[round(lat, 6), round(lon, 6)] for lon, lat in geometry],  # -> [lat, lon] for Leaflet
     }
-    print(f"day {day_num}: {route['distance']/1000:.1f} km driving, {route['duration']/60:.0f} min, "
+    print(f"day {day_num}: {route['distance']/1000:.1f} km driving (incl. depot), {route['duration']/60:.0f} min, "
           f"{len(geometry)} geometry points")
     time.sleep(1.2)  # be polite to the free demo server
 

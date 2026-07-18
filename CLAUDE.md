@@ -28,9 +28,9 @@ functional, not cutesy at the expense of legibility for a driver using it in a m
   below) and must be regenerated whenever the day routes or branch list change. Shows a per-day
   Leaflet/OpenStreetMap map (numbered markers + real driving route line), real driving
   distance/time per leg and per day, and a "whole day in Google Maps" link.
-- `driving_matrix.json` — cached NxN real driving distance/duration matrix (all 77 geolocated
-  branches, from OSRM's `table` service) used to cluster days and order stops. See "Day-route
-  clustering" below.
+- `driving_matrix.json` — cached real driving distance/duration matrix (depot + all 77 geolocated
+  branches, from OSRM's `table` service) used to cluster days and order stops. See "Depot" and
+  "Day-route clustering" below.
 - `driving_routes.json` — cached real driving distances/durations/route geometry per day from OSRM
   (see "Driving distances" below). Committed so the site doesn't depend on a live routing call.
 
@@ -80,35 +80,56 @@ Coordinates are written to 6 decimals (~0.1 m). The `Coordinates` column holds t
   gets CAPTCHA-walled. Do not solve CAPTCHAs. Instead resolve by the business name via Waze, or ask
   the user to re-share as a `maps.app.goo.gl` link ("Share -> Copy link" in Google Maps) or an address.
 
+## Depot (start/end of day)
+
+The driver starts and ends every day at a fixed base: **בסיס – סוקולוב 55, רמת השרון**
+(55 Sokolov St, Ramat HaSharon — resolved from a `maps.app.goo.gl` link the user shared via the
+Waze geocoder; see "Resolving a Google Maps link" above). Coordinates and Waze link are hardcoded
+in `scripts/fetch_driving_matrix.py` as `DEPOT` — that's the single source of truth, everything else
+reads it from `driving_matrix.json["depot"]`.
+
+The depot is ~30-150 km north of the branch network (which is all south of Rehovot), so the
+depot round trip dominates each day's total distance and matters a lot for picking the best day
+count — fewer, bigger days amortize the depot trip better than many small days. Every day route is
+optimized as a full loop **depot -> stops -> depot**, not an open path. In the data/UI the depot
+appears as explicit bookend "stops" (`isDepot: true`) before stop 1 and after the last real stop,
+each with its own Waze link, so the driver can navigate there too.
+
 ## Day-route clustering
 
 Splits the geolocated branches into day routes of 7-9 stops, minimizing total **real driving
-distance** (OSRM road-network distance, not straight-line):
+distance including the depot round trip** (OSRM road-network distance, not straight-line):
 
-1. `scripts/fetch_driving_matrix.py` gets the full 77x77 driving distance/duration matrix from
-   OSRM's `table` service in a single request, cached in `driving_matrix.json`.
-2. `scripts/build_day_routes.py` clusters using that matrix (capacitated k-medoids, since driving
-   distance isn't Euclidean so there's no coordinate centroid to average — a medoid is the cluster
-   member with the lowest total distance to the rest of the cluster):
+1. `scripts/fetch_driving_matrix.py` gets a driving distance/duration matrix from OSRM's `table`
+   service in a single request — depot at index 0, the 77 branches at indices 1..77 — cached in
+   `driving_matrix.json`.
+2. `scripts/build_day_routes.py` clusters using the branch-to-branch part of that matrix
+   (capacitated k-medoids, since driving distance isn't Euclidean so there's no coordinate
+   centroid to average — a medoid is the cluster member with the lowest total distance to the rest
+   of the cluster):
    - Try every feasible number of days `k` (i.e. `ceil(n/9) <= k <= floor(n/7)`).
    - For each `k`: k-medoids++ seeding + Lloyd-style reassignment, greedy rebalancing to enforce
      7-9 per cluster, then pairwise-swap local search between clusters (all driven by the real
-     distance matrix, not planar coordinates).
-   - Within each day, brute-force the exact optimal visiting order (open-path, no return leg) —
-     feasible since a day never has more than 9 stops (≤ 9! permutations), using real driving
-     distances between stops.
-   - Pick the `k` with the lowest total real driving distance summed across all days.
+     branch-to-branch distance matrix — cluster *membership* doesn't factor in depot distance,
+     only the final route cost does; see below).
+   - Within each day, brute-force the exact optimal **depot -> stops -> depot** loop — feasible
+     since a day never has more than 9 stops (≤ 9! permutations) — using real driving distances,
+     including the two depot legs.
+   - Pick the `k` with the lowest total real driving distance (depot legs included) summed across
+     all days.
 
 Branches without coordinates are excluded from clustering and listed separately as "Unscheduled".
-Re-run both scripts whenever the branch list or coordinates change — it's a fresh optimization, not
-an incremental update.
+Re-run both scripts whenever the branch list, coordinates, or depot location changes — it's a fresh
+optimization, not an incremental update.
 
 ## Driving distances (per-day route geometry)
 
 `scripts/fetch_driving_distances.py` calls the free OSRM public demo server
-(`router.project-osrm.org`, driving profile, no API key) once per day route, in the stop order
-already fixed by day-route clustering. One request per day returns the whole day's real distance,
-duration, per-leg distance/duration, and the full route geometry (for the map polyline). Results
+(`router.project-osrm.org`, driving profile, no API key) once per day route — depot, then the
+stops in the order already fixed by day-route clustering, then depot again. One request per day
+returns the whole loop's real distance, duration, per-leg distance/duration (legs[0] is depot->stop1,
+the last leg is the return trip), and the full route geometry (for the map polyline, which now
+includes the drive to/from the depot). Results
 are cached in `driving_routes.json` — the site never calls OSRM live (avoids depending on / abusing
 the free demo server from every driver's phone). Be polite: keep the ~1s delay between requests, and
 re-run this only when the day routes actually change, not on every site rebuild.
