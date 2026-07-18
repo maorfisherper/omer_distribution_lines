@@ -340,14 +340,16 @@
     var n = points.length;
 
     var minPerDay = options.minPerDay, maxPerDay = options.maxPerDay;
-    var numDays = options.numDays || null;
-    var maxLegKm = options.maxLegKm || null;
+    // `== null` (not `||`) so an explicit 0 — a real, invalid value we want to validate and
+    // report on below — isn't silently treated the same as "field left blank".
+    var numDays = options.numDays == null ? null : options.numDays;
+    var maxLegKm = options.maxLegKm == null ? null : options.maxLegKm;
     var maxLegM = maxLegKm != null ? maxLegKm * 1000 : null;
 
-    if (!Number.isFinite(minPerDay) || minPerDay < 1) {
+    if (!Number.isInteger(minPerDay) || minPerDay < 1) {
       return { ok: false, error: 'מינימום עצירות ליום חייב להיות מספר שלם של לפחות 1.' };
     }
-    if (!Number.isFinite(maxPerDay) || maxPerDay < minPerDay) {
+    if (!Number.isInteger(maxPerDay) || maxPerDay < minPerDay) {
       return { ok: false, error: 'מקסימום עצירות ליום חייב להיות גדול או שווה למינימום.' };
     }
 
@@ -367,8 +369,8 @@
     }
 
     var kRange;
-    if (numDays) {
-      if (!Number.isFinite(numDays) || numDays < 1) {
+    if (numDays != null) {
+      if (!Number.isInteger(numDays) || numDays < 1) {
         return { ok: false, error: 'מספר הימים חייב להיות מספר שלם חיובי.' };
       }
       var minCap = minPerDay * numDays, maxCap = maxPerDay * numDays;

@@ -221,7 +221,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
-  z-index: 100;
+  z-index: 2000; /* above Leaflet's panes (up to ~700) and controls (1000) */
   align-items: flex-start;
   justify-content: center;
   padding: 60px 16px;
@@ -288,6 +288,7 @@ body {
   flex-direction: column;
   gap: 6px;
   flex: 1;
+  min-width: 0;
 }
 
 .field span {
@@ -296,6 +297,8 @@ body {
 }
 
 .field input {
+  width: 100%;
+  box-sizing: border-box;
   background: var(--bg-raised);
   border: 2px solid var(--line);
   border-radius: var(--radius);
@@ -313,6 +316,7 @@ body {
 .field-row {
   display: flex;
   gap: 12px;
+  min-width: 0;
 }
 
 .modal-error {
